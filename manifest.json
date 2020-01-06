@@ -14,8 +14,7 @@
   "background": {
     "persistent": false,
     "scripts": [
-      "/src/background05.js",
-      "/src/backgroundContent.js",
+      "/src/background2.js",
       "/src/popup.js"
     ]
   },
