@@ -1,52 +1,28 @@
-var URL, domain, split_url = null, OBJ_ID, str = '', control = false, regex = new RegExp("(?=.*)[(a-z)+(0-9)+]{15,18}$");
+var debug = true;
+var switcher = '/ltng/switcher?destination=classic&referrer=%2Flightning%2Fpage%2Fhome';
 
 chrome.browserAction.onClicked.addListener(function(tab) {    
-    URL = tab.url;
-    alert(URL);
-    
-    URL = URL + '';
-    split_url = URL.split('/');
-    domain = split_url[0];
-
-
-    for (const str of split_url)
-    {
-        if(regex.test(str))
-        {
-            str = 'Found an ID : ' + str + '\n';
-            OBJ_ID = str;
-            control = true;
-            break;
-        }
-    }
-
-    if (control = false)
-    {
-        str = 'No ID found.\n';
-    }
-    
-    if(str != null && str != '')
-        alert(str);
-    // Call Switcher
-    // Get new URL
-    // Call id 
+    // URL = tab.url;
+    if(debug)
+        parseURL("www.google.com/asd/asdsd/aasd12345678911");
+    else
+        parseURL(tabs.url);
 });
 
-function GET_NEW_URL(URL)
+function parseURL(url)
 {
+    var domain, split_url = null, str = '', obj_id = "Never Populated", control = false;
+    var regex = new RegExp("(?=.*)[(a-z)+(0-9)+]{15,18}$");
 
-    var str = '';
-    URL = URL + '';
-    split_url = URL.split('/');
+    split_url = url.split('/');
     domain = split_url[0];
 
-
+    
     for (const str of split_url)
     {
         if(regex.test(str))
         {
-            str = 'Found an ID : ' + str + '\n';
-            OBJ_ID = str;
+            obj_id = str;
             control = true;
             break;
         }
@@ -54,9 +30,17 @@ function GET_NEW_URL(URL)
 
     if (control = false)
     {
-        str = 'No ID found.\n';
+        obj_id = 'No ID found.\n';
     }
 
-    return str;
+    alert("Domain: " + domain + "\nObject ID found: " + obj_id + "\n");
+    var newURL = domain + '/' + switcher;
+    alert(newURL);
+    window.location.href = newURL;
+    
+    chrome.tabs.create({url: newURL});
+
+    // New url gets appended chrome-extension://id/
+    
 
 }
