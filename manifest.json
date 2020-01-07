@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Open Classic",
   "description": "Open Links in Classic",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "icons": {
     "16": "img/img_16.png",
     "48": "img/icon2.png",
@@ -18,5 +18,5 @@
       "/src/popup.js"
     ]
   },
-  "permissions": ["storage", "topSites", "contextMenus", "tabs"]
+  "permissions": ["storage", "topSites", "contextMenus", "tabs", "webNavigation"]
 }
