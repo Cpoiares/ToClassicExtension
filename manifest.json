@@ -14,9 +14,8 @@
   "background": {
     "persistent": false,
     "scripts": [
-      "/src/background2.js",
-      "/src/popup.js"
+      "/src/background.js"
     ]
   },
-  "permissions": ["storage", "topSites", "contextMenus", "tabs", "webNavigation"]
+  "permissions": ["storage", "tabs", "webNavigation"]
 }

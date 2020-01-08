@@ -1,75 +1,190 @@
-// Grab url
-// Store ID in URL (if possible ???)
-// Removed     "default_popup": "background.html"
-// javascript:var path='/ltng/switcher?destination=classic&referrer=%2Flightning%2Fpage%2Fhome';window.open(URL + path);
-// Call Switcher 
-// Grab New URL 
-// Add Stored ID
-// Call New URL
-
-var DEBUG = false;
-var URL, domain, split_url = null, OBJ_ID, control = false, regex = new RegExp("(?=.*)[(a-z)+(0-9)+]{15,18}$");
 var switcher = '/ltng/switcher?destination=classic&referrer=%2Flightning%2Fpage%2Fhome';
-chrome.browserAction.onClicked.addListener(function(tab) { alert('icon clicked')});
+var control = false;
+
+chrome.browserAction.onClicked.addListener(function(tab) {    
+    // URL = tab.url;
+    control = false;
+    if(tab.url.includes("lightning.force.com") || tab.url.includes(".visual.force.com"))
+        parseURL(tab.url);
+
+});
 
 
-
-if(DEBUG)
+function parseURL(url)
 {
-    URL = "www.google.com/asd/asdsd/aasd12345678911"
 
+    if(url.includes("apex/ConfigurationDataManagement")) // /apex/ConfigurationDataManagement
+    {
+        DealConfigMngmt(url);
+    }
+    else if(url.includes("apex/jobadministration")) // /apex/KimbleOne__jobadministration
+    { 
+        DealJobAdmin(url)
+    }
+    else
+    {
+        DealObjId(url);
+    }
 }
-else{
 
-    var s = document.createElement('script');
-    s.src = chrome.extension.getURL('src/backgroundCall.js');
-    (document.head || document.documentElement).appendChild(s);
+function DealObjId(url)
+{
+
+    var domain, anotha_url = '', split_url = null, str = '', obj_id = "Never Populated", aux;
     
-    s.onload = function(){
-    
-        console.log("PAGE LOADED.")
-        var url=chrome.runtime.getURL("/html/background.html") + '';
-        
-        var evt=document.createEvent("CustomEvent");
-        evt.initCustomEvent("yourCustomEvent", true, true, url);
-        document.dispatchEvent(evt);
-        console.log("EVENT DISPATCHED");
-        URL = url + '';
-    };
-}
-if(URL != null){
-    console.log(URL);
-    URL = URL + '';
-    split_url = URL.split('/');
+    var regex = new RegExp("(?=.*)[/(a-zA-Z)+(0-9)+]{16,19}$");
+
+    // Clear HTTPS://
+    aux = url.split('://')[1];
+    split_url = aux.split('/');
     domain = split_url[0];
 
-
+    
     for (const str of split_url)
     {
-        console.log(str);
         if(regex.test(str))
         {
-            console.log('Found an ID : ' + str + '\n');
-            OBJ_ID = str;
-            control = true;
+            obj_id = str;
             break;
         }
     }
 
-    if (control = false)
+    if(obj_id == "Never Populated")
     {
-        console.log('No ID found.\n')
+        //No id, Just change to Classic mode
+        DealNoId(domain);
+    }
+    else
+    {
+        var newURL = "https://" + domain  + switcher;
+    
+        chrome.tabs.query({currentWindow: true, active: true}, function (tab) {
+            chrome.tabs.update(tab.id, {url: newURL});
+        });
+    
+        // Using sleep to wait for page load
+        //await new Promise(r => setTimeout(r, 10000));
+    
+        // On page load, getURL parse and call new classic URL + id
+        chrome.webNavigation.onCompleted.addListener(function(details) {
+            if(!control){
+                chrome.tabs.query({currentWindow: true, active: true}, function (tab_2) {
+                    control = true;
+                    var aux = tab_2[0].url + '';
+                    aux = aux.split("://")[1];
+                    
+                    anotha_url = "https://" + aux.split('/')[0] + '/' + obj_id;
+                    //alert("Tab URL " + tab_2[0].url);
+                    chrome.tabs.update(tab_2[0].id, {url: anotha_url});
+                });
+            }
+        }, {
+            url: [{
+                // Runs on example.com, example.net, but also example.foo.com
+                hostContains: '.salesforce.com'
+            }],
+        });
+        
     }
 
-    var newURL = domain + switcher;
-    chrome.browserAction.onClicked.addListener(function(activeTab)
-    {
-    chrome.tabs.create({url : newURL});  
+}
+
+function DealNoId(domain)
+{
+    var newURL = "https://" + domain  + switcher;
+
+    chrome.tabs.query({currentWindow: true, active: true}, function (tab) {
+        chrome.tabs.update(tab.id, {url: newURL});
+    });
+}
+
+function DealConfigMngmt(url)
+{
+    var domain, anotha_url = '', split_url = null, temp;
+
+    // Clear HTTPS://
+    temp = url.split('://')[1];
+    split_url = temp.split('/');
+    domain = split_url[0];
+
+    var newURL = "https://" + domain  + switcher;
+    //alert(newURL);
+
+    chrome.tabs.query({currentWindow: true, active: true}, function (tab) {
+        chrome.tabs.update(tab.id, {url: newURL});
     });
 
-    // wait for page to load, grab domain, call new URL with ID
+    chrome.webNavigation.onCompleted.addListener(function(details) {
+        if(!control){
+            chrome.tabs.query({currentWindow: true, active: true}, function (tab_classic) {
+                control = true;
+                var temp = tab_classic[0].url + '';
+                temp = temp.split("://")[1];
+                anotha_url = "https://" + temp.split('/')[0] + '/' + "apex/KimbleOne__ConfigurationDataManagement";
+                chrome.tabs.update(tab_classic[0].id, {url: anotha_url});
+            });
+        }
+    }, {
+        url: [{
+            // Runs on example.com, example.net, but also example.foo.com
+            hostContains: '.salesforce.com'
+        }],
+    });
+
 }
-else
+
+
+function DealJobAdmin(url)
 {
-    console.log("URL == NULL");
+
+    var domain, classic_url = '', split_url = null, temp;
+
+    // Clear HTTPS://
+    temp = url.split('://')[1];
+    split_url = temp.split('/');
+    domain = split_url[0];
+
+    var newURL = "https://" + domain  + switcher;
+    //alert(newURL);
+
+    chrome.tabs.query({currentWindow: true, active: true}, function (tab) {
+        chrome.tabs.update(tab.id, {url: newURL});
+    });
+
+    chrome.webNavigation.onCompleted.addListener(function(details) {
+        if(!control){
+            chrome.tabs.query({currentWindow: true, active: true}, function (tab_classic) {
+                control = true;
+                var temp = tab_classic[0].url + '';
+                temp = temp.split("://")[1];
+                classic_url = "https://" + temp.split('/')[0] + '/' + "apex/KimbleOne__jobadministration";
+                chrome.tabs.update(tab_classic[0].id, {url: classic_url});
+            });
+        }
+    }, {
+        url: [{
+            // Runs on example.com, example.net, but also example.foo.com
+            hostContains: '.salesforce.com'
+        }],
+    });
+
+
+}
+
+
+function parseURL(url)
+{
+
+    if(url.includes("apex/ConfigurationDataManagement")) // /apex/ConfigurationDataManagement
+    {
+        DealConfigMngmt(url);
+    }
+    else if(url.includes("apex/jobadministration")) // /apex/KimbleOne__jobadministration
+    { 
+        DealJobAdmin(url)
+    }
+    else
+    {
+        DealObjId(url);
+    }
 }
