@@ -1,6 +1,9 @@
 var switcher = '/ltng/switcher?destination=classic&referrer=%2Flightning%2Fpage%2Fhome';
 var control = false;
 
+
+// save tab where extension was called
+
 chrome.browserAction.onClicked.addListener(function(tab) {    
     // URL = tab.url;
     control = false;
@@ -49,7 +52,7 @@ function DealObjId(url)
         }
     }
 
-    if(obj_id == "Never Populated")
+    if((obj_id == "Never Populated") || url.includes("?filter"))
     {
         //No id, Just change to Classic mode
         DealNoId(domain);
