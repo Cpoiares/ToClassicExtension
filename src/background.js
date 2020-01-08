@@ -1,4 +1,4 @@
-var switcher = '/ltng/switcher?destination=classic&referrer=%2Flightning%2Fpage%2Fhome';
+const switcher = '/ltng/switcher?destination=classic&referrer=%2Flightning%2Fpage%2Fhome';
 var control = false;
 
 
@@ -33,9 +33,9 @@ function parseURL(url)
 function DealObjId(url)
 {
 
-    var domain, anotha_url = '', split_url = null, str = '', obj_id = "Never Populated", aux;
+    var domain, lightning_url = '', split_url = null, str = '', obj_id = "Never Populated", aux;
     
-    var regex = new RegExp("(?=.*)[/(a-zA-Z)+(0-9)+]{16,19}$");
+    const regex = new RegExp("(?=.*)[/(a-zA-Z)+(0-9)+]{16,19}$");
 
     // Clear HTTPS://
     aux = url.split('://')[1];
@@ -76,9 +76,9 @@ function DealObjId(url)
                     var aux = tab_2[0].url + '';
                     aux = aux.split("://")[1];
                     
-                    anotha_url = "https://" + aux.split('/')[0] + '/' + obj_id;
+                    lightning_url = "https://" + aux.split('/')[0] + '/' + obj_id;
                     //alert("Tab URL " + tab_2[0].url);
-                    chrome.tabs.update(tab_2[0].id, {url: anotha_url});
+                    chrome.tabs.update(tab_2[0].id, {url: lightning_url});
                 });
             }
         }, {
@@ -103,7 +103,7 @@ function DealNoId(domain)
 
 function DealConfigMngmt(url)
 {
-    var domain, anotha_url = '', split_url = null, temp;
+    var domain, lightning_url = '', split_url = null, temp;
 
     // Clear HTTPS://
     temp = url.split('://')[1];
@@ -123,8 +123,8 @@ function DealConfigMngmt(url)
                 control = true;
                 var temp = tab_classic[0].url + '';
                 temp = temp.split("://")[1];
-                anotha_url = "https://" + temp.split('/')[0] + '/' + "apex/KimbleOne__ConfigurationDataManagement";
-                chrome.tabs.update(tab_classic[0].id, {url: anotha_url});
+                lightning_url = "https://" + temp.split('/')[0] + '/' + "apex/KimbleOne__ConfigurationDataManagement";
+                chrome.tabs.update(tab_classic[0].id, {url: lightning_url});
             });
         }
     }, {
