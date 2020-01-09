@@ -22,13 +22,23 @@ function parseURL(url)
     }
     else if(url.includes("apex/jobadministration")) // /apex/KimbleOne__jobadministration
     { 
-        DealJobAdmin(url)
+        DealJobAdmin(url);
     }
+    /*else if(url.includes("KimbleAgent_AgentDashboard"))
+    {
+        DealAgentDashboard(url);
+    }    */
+    else if(url.includes("KimbleOne__Job__c"))
+    {
+        DealJobPage(url);
+    }
+
     else
     {
         DealObjId(url);
     }
 }
+
 
 function DealObjId(url)
 {
@@ -123,7 +133,7 @@ function DealConfigMngmt(url)
                 control = true;
                 var temp = tab_classic[0].url + '';
                 temp = temp.split("://")[1];
-                lightning_url = "https://" + temp.split('/')[0] + '/' + "apex/KimbleOne__ConfigurationDataManagement";
+                lightning_url = "https://" + temp.split('/')[0] + "/apex/KimbleOne__ConfigurationDataManagement";
                 chrome.tabs.update(tab_classic[0].id, {url: lightning_url});
             });
         }
@@ -160,7 +170,7 @@ function DealJobAdmin(url)
                 control = true;
                 var temp = tab_classic[0].url + '';
                 temp = temp.split("://")[1];
-                classic_url = "https://" + temp.split('/')[0] + '/' + "apex/KimbleOne__jobadministration";
+                classic_url = "https://" + temp.split('/')[0] + "/apex/KimbleOne__jobadministration";
                 chrome.tabs.update(tab_classic[0].id, {url: classic_url});
             });
         }
@@ -174,20 +184,78 @@ function DealJobAdmin(url)
 
 }
 
+//https://kimbleagent.um5.visual.force.com/apex/AgentDashboard?sfdc.tabName=01r1t000000vYhv
 
-function parseURL(url)
+function DealAgentDashboard()
 {
+    var domain, classic_url = '', split_url = null, temp, prefix = "kimbleagent.";
 
-    if(url.includes("apex/ConfigurationDataManagement")) // /apex/ConfigurationDataManagement
-    {
-        DealConfigMngmt(url);
-    }
-    else if(url.includes("apex/jobadministration")) // /apex/KimbleOne__jobadministration
-    { 
-        DealJobAdmin(url)
-    }
-    else
-    {
-        DealObjId(url);
-    }
+    // Clear HTTPS://
+    temp = url.split('://')[1];
+    split_url = temp.split('/');
+    domain = split_url[0];
+
+    var newURL = "https://" + domain  + switcher;
+    //alert(newURL);
+
+    chrome.tabs.query({currentWindow: true, active: true}, function (tab) {
+        chrome.tabs.update(tab.id, {url: newURL});
+    });
+
+    // Page is vsforce, need to split url by the '.' get the node and build url in form https://kimbleagent.node.visual.force.com/apex/AgentDashboard
+    chrome.webNavigation.onCompleted.addListener(function(details) {
+        if(!control){
+            chrome.tabs.query({currentWindow: true, active: true}, function (tab_classic) {
+                control = true;
+                var temp = tab_classic[0].url + '';
+                temp = temp.split("://")[1];
+                classic_url = "https://" + prefix + temp.split('/')[0] + "/apex/KimbleOne__jobadministration";
+                chrome.tabs.update(tab_classic[0].id, {url: classic_url});
+            });
+        }
+    }, {
+        url: [{
+            // Runs on example.com, example.net, but also example.foo.com
+            hostContains: '.salesforce.com'
+        }],
+    });
 }
+
+function DealJobPage(url)
+{
+   // Classic argument for job page /apex/KimbleOne__ObjectLinks?f=KimbleOne__Job__C
+
+   var domain, classic_url = '', split_url = null, temp;
+
+   // Clear HTTPS://
+   temp = url.split('://')[1];
+   split_url = temp.split('/');
+   domain = split_url[0];
+
+   var newURL = "https://" + domain  + switcher;
+   //alert(newURL);
+
+   chrome.tabs.query({currentWindow: true, active: true}, function (tab) {
+       chrome.tabs.update(tab.id, {url: newURL});
+   });
+
+   // Page is vsforce, need to split url by the '.' get the node and build url in form https://kimbleagent.node.visual.force.com/apex/AgentDashboard
+   chrome.webNavigation.onCompleted.addListener(function(details) {
+       if(!control){
+           chrome.tabs.query({currentWindow: true, active: true}, function (tab_classic) {
+               control = true;
+               var temp = tab_classic[0].url + '';
+               temp = temp.split("://")[1];
+               classic_url = "https://" + temp.split('/')[0] + "/apex/KimbleOne__ObjectLinks?f=KimbleOne__Job__C";
+               chrome.tabs.update(tab_classic[0].id, {url: classic_url});
+           });
+       }
+   }, {
+       url: [{
+           // Runs on example.com, example.net, but also example.foo.com
+           hostContains: '.salesforce.com'
+       }],
+   });
+}
+
+
