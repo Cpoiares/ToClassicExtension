@@ -37,6 +37,11 @@ function parseURL(url)
     {
         DealAgentDashboard(url);
     }    */
+    // Encoded URL with god knows what
+    else if(url.includes("/one/one.app"))
+    {
+        DealWithOneApp(url);
+    }
     else if(url.includes("KimbleOne__Job__c"))
     {
         DealJobPage(url);
@@ -46,6 +51,22 @@ function parseURL(url)
     {
         DealObjId(url);
     }
+}
+
+function DealWithOneApp(url)
+{
+    var domain, split_url = null, aux;
+    
+    // Need to Correc Regex because 
+    // https://boardcrm.lightning.force.com/one/one.app#eyJjb21wb25lbnREZWYiOiJvbmU6YWxvaGFQYWdlIiwiYXR0cmlidXRlcyI6eyJhZGRyZXNzIjoiaHR0cHM6Ly9ib2FyZGNybS5saWdodG5pbmcuZm9yY2UuY29tL2FwZXgvS2ltYmxlT25lX19BY3Rpdml0eUFzc2lnbm1lbnRzRGVsaXZlcnk%2FZmlsdGVyaWQ9YTJ0MEowMDAwMDJBMkdKUUEwJmlkPWEwdDBKMDAwMDBFMnBVbFFBSiJ9LCJzdGF0ZSI6e319
+    // is picked up 
+
+    // Clear HTTPS://
+    aux = url.split('://')[1];
+    split_url = aux.split('/');
+    domain = split_url[0];
+
+    DealNoId(domain);
 }
 
 
