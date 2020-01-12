@@ -54,7 +54,7 @@ All set!
  
 The Extension’s behavior is based on the URL from the focused tab when the Extension Icon was clicked, so to use it, simply click the Kimble Icon whenever you want to convert the page to Classic!
 
-Notes
+## Notes
 Please let me know if you find any bugs or needed corrections, that way I can perfect it to the team's needs.
 
 (Any corrections or contributions to the Repo are welcomed    )
