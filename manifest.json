@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Open Classic",
   "description": "Open Links in Classic",
-  "version": "1.0.5",
+  "version": "0.7.6",
   "icons": {
     "16": "img/img_16.png",
     "48": "img/icon2.png",
@@ -17,5 +17,7 @@
       "/src/background.js"
     ]
   },
-  "permissions": ["storage", "tabs", "webNavigation"]
+  "permissions": ["storage", "tabs", "webNavigation"],
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+
 }
