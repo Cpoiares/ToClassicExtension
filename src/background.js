@@ -1,20 +1,11 @@
-/* TODO: https://westmonroepartners.lightning.force.com/one/one.app#eyJjb21wb25lbnREZWYiOiJvbmU6YWxvaGFQYWdlIiwiYXR0cmlidXRlcyI6eyJhZGRyZXNzIjoiaHR0cHM6Ly93ZXN0bW9ucm9lcGFydG5lcnMubGlnaHRuaW5nLmZvcmNlLmNvbS9hcGV4L0tpbWJsZU9uZV9fQWN0aXZpdHlBc3NpZ25tZW50c0RlbGl2ZXJ5P2ZpbHRlcmlkPWE2d2YyMDAwMDAxNUdHbEFBTSZpZD1hNDlmMjAwMDAwMHB3WmdBQUkifSwic3RhdGUiOnt9fQ%3D%3D
-        switch to classic in new tab
-        open same page in new window
-
-    TODO: Correct Job Page 
-    if link: https://boardcrm.lightning.force.com/lightning/r/KimbleOne__Job__c/a1a0J0000069c3GQAQ/view
-    Calls page list view instead of ID
-
+/*
+    TODO: Context menu for right click call ID, Decode Parameter and Open Ids
 */
 const switcher = '/ltng/switcher?destination=classic&referrer=%2Flightning%2Fpage%2Fhome';
-var control = false, debug = false, test = 'https://westmonroepartners.lightning.force.com/one/one.app#eyJjb21wb25lbnREZWYiOiJvbmU6YWxvaGFQYWdlIiwiYXR0cmlidXRlcyI6eyJhZGRyZXNzIjoiaHR0cHM6Ly93ZXN0bW9ucm9lcGFydG5lcnMubGlnaHRuaW5nLmZvcmNlLmNvbS9hcGV4L0tpbWJsZU9uZV9fQWN0aXZpdHlBc3NpZ25tZW50c0RlbGl2ZXJ5P2ZpbHRlcmlkPWE2d2YyMDAwMDAxNUdHbEFBTSZpZD1hNDlmMjAwMDAwMHB3WmdBQUkifSwic3RhdGUiOnt9fQ%3D%3D';
+var control = false, debug = false, test = 'https://claremont.lightning.force.com/one/one.app?source=alohaHeader#eyJjb21wb25lbnREZWYiOiJvbmU6YWxvaGFQYWdlIiwiYXR0cmlidXRlcyI6eyJhZGRyZXNzIjoiaHR0cHM6Ly9jbGFyZW1vbnQubGlnaHRuaW5nLmZvcmNlLmNvbS9hcGV4L0tpbWJsZU9uZV9fQWN0aXZpdHlBc3NpZ25tZW50c0RlbGl2ZXJ5P2lkPWEwYzN6MDAwMDBabVdUdEFBTiJ9LCJzdGF0ZSI6e319';
 
-
-// save tab where extension was called
 
 chrome.browserAction.onClicked.addListener(function (tab) {
-    // URL = tab.url;
     control = false;
     if(debug)
         CheckType(test);
@@ -27,19 +18,9 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 
 function Parser(url) {
 
-    // URL: https://boardcrm.lightning.force.com/lightning/r/KimbleOne__Job__c/a1a0J0000069c3GQAQ/view
     var aux, split_url;
-
-    // Remove https
     aux = url.split('://')[1];
-    // Split by / - boardcrm.lightning.force.com/lightning/r/KimbleOne__Job__c/a1a0J0000069c3GQAQ/view
     split_url = aux.split('/');
-    // boardcrm.lightning.force.com
-    // lightning
-    // r
-    // KimbleOne__Job__c
-    // a1a0J0000069c3GQAQ
-    // view
     return split_url;
 }
 
@@ -60,11 +41,6 @@ function CheckType(url) {
     {
         DealJobAdmin(url);
     }
-    /*else if(url.includes("KimbleAgent_AgentDashboard"))
-    {
-        DealAgentDashboard(url);
-    }    */
-    // Encoded URL with god knows what
     else if (url.includes("/one/one.app")) {
         DealWithOneApp(url);
     }
@@ -78,33 +54,46 @@ function CheckType(url) {
 }
 
 function DealWithOneApp(url) {
-    // https://westmonroepartners.lightning.force.com/one/one.app#eyJjb21wb25lbnREZWYiOiJvbmU6YWxvaGFQYWdlIiwiYXR0cmlidXRlcyI6eyJhZGRyZXNzIjoiaHR0cHM6Ly93ZXN0bW9ucm9lcGFydG5lcnMubGlnaHRuaW5nLmZvcmNlLmNvbS9hcGV4L0tpbWJsZU9uZV9fQWN0aXZpdHlBc3NpZ25tZW50c0RlbGl2ZXJ5P2ZpbHRlcmlkPWE2d2YyMDAwMDAxNUdHbEFBTSZpZD1hNDlmMjAwMDAwMHB3WmdBQUkifSwic3RhdGUiOnt9fQ%3D%3D%2FZmlsdGVyaWQ9YTJ0MEowMDAwMDJBMkdKUUEwJmlkPWEwdDBKMDAwMDBFMnBVbFFBSiJ9LCJzdGF0ZSI6e319
 
-    /*
-    Expected format after decode:
-    {
-        "componentDef":"one:alohaPage",
-        "attributes":
-            {"address":"https://westmonroepartners.lightning.force.com/apex/KimbleOne__ActivityAssignmentsDelivery?filterid=a6wf20000015GGlAAM&id=a49f2000000pwZgAAI"},
-            "state":{}}ٚ[\YXLLҔPL	YXLL[PRK]H_
-    */
     var domain, split_url = null, dec, decoded_url = decodeURIComponent(url), json_obj;
     split_url = Parser(decoded_url);
 
     domain = split_url[0];
 
-    dec = split_url[2].split('#')[1];
+    id_dec = decoded_url.split('#')[1];
+    alert("Calling the following id to decode " + id_dec)
+    decoded_str = b64DecodeUnicode(id_dec);
 
+    try
+    {
+        json_obj = JSON.parse(decoded_str);
+        var newURL = "https://" + domain + switcher;
+        alert("Address: " + json_obj.attributes.address);
 
-    json_obj = JSON.parse(b64DecodeUnicode(dec));
+        alert("");
 
-    // Json with weird structure
-    /*
-    TODO: Fix json, get address call address
-    */ 
+        chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
+            chrome.tabs.update(tab.id, { url: newURL });
+        });
 
-    DealNoId(domain);
-        
+        chrome.webNavigation.onCompleted.addListener(function (details) {
+            chrome.tabs.query({ currentWindow: true, active: true }, function (tab_2) {
+                if(!control){
+                    control = true;
+                    chrome.tabs.update(tab_2[0].id, { url: json_obj.attributes.address});
+                }
+            });
+            
+        }, {
+            url: [{
+                hostContains: '.salesforce.com'
+            }],
+        });
+    }catch(e)
+    {
+        alert("Exception caught");
+        DealNoId(domain);
+    }
 
 
 }
