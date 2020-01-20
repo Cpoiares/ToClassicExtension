@@ -61,17 +61,12 @@ function DealWithOneApp(url) {
     domain = split_url[0];
 
     id_dec = decoded_url.split('#')[1];
-    alert("Calling the following id to decode " + id_dec)
     decoded_str = b64DecodeUnicode(id_dec);
 
     try
     {
         json_obj = JSON.parse(decoded_str);
         var newURL = "https://" + domain + switcher;
-        alert("Address: " + json_obj.attributes.address);
-
-        alert("");
-
         chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
             chrome.tabs.update(tab.id, { url: newURL });
         });
