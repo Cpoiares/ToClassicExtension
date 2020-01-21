@@ -1,18 +1,24 @@
 /*
     TODO: Context menu for right click call ID, Decode Parameter and Open Ids
+    TODO: Lock extension behavior to same tab - identify tab and call same id
 */
 const switcher = '/ltng/switcher?destination=classic&referrer=%2Flightning%2Fpage%2Fhome';
 var control = false, debug = false, test = 'https://claremont.lightning.force.com/one/one.app?source=alohaHeader#eyJjb21wb25lbnREZWYiOiJvbmU6YWxvaGFQYWdlIiwiYXR0cmlidXRlcyI6eyJhZGRyZXNzIjoiaHR0cHM6Ly9jbGFyZW1vbnQubGlnaHRuaW5nLmZvcmNlLmNvbS9hcGV4L0tpbWJsZU9uZV9fQWN0aXZpdHlBc3NpZ25tZW50c0RlbGl2ZXJ5P2lkPWEwYzN6MDAwMDBabVdUdEFBTiJ9LCJzdGF0ZSI6e319';
-
+var tab_ref;
+var current = chrome.windows.WINDOW_ID_CURRENT;
 
 chrome.browserAction.onClicked.addListener(function (tab) {
     control = false;
+    tab_ref = tab;
+    current = chrome.windows.WINDOW_ID_CURRENT
     if(debug)
         CheckType(test);
     else
     {
         if (tab.url.includes("lightning.force.com") || tab.url.includes(".visual.force.com"))
-            CheckType(tab.url);
+        {
+            CheckType(tab_ref.url);
+        }
     }
 });
 
@@ -55,7 +61,7 @@ function CheckType(url) {
 
 function DealWithOneApp(url) {
 
-    var domain, split_url = null, dec, decoded_url = decodeURIComponent(url), json_obj;
+    var domain, split_url = null, decoded_url = decodeURIComponent(url), json_obj;
     split_url = Parser(decoded_url);
 
     domain = split_url[0];
@@ -67,21 +73,17 @@ function DealWithOneApp(url) {
     {
         json_obj = JSON.parse(decoded_str);
         var newURL = "https://" + domain + switcher;
-        chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
-            chrome.tabs.update(tab.id, { url: newURL });
-        });
-
-        chrome.webNavigation.onCompleted.addListener(function (details) {
-            chrome.tabs.query({ currentWindow: true, active: true }, function (tab_2) {
-                if(!control){
+        chrome.tabs.update(tab_ref.id, { url: newURL });
+        
+        chrome.webNavigation.onCompleted.addListener(function (){
+            if(!control){
                     control = true;
-                    chrome.tabs.update(tab_2[0].id, { url: json_obj.attributes.address});
+                    chrome.tabs.update(tab_ref.id, { url: json_obj.attributes.address});
                 }
-            });
             
         }, {
             url: [{
-                hostContains: '.salesforce.com'
+                hostContains: 'salesforce.com'
             }],
         });
     }catch(e)
@@ -89,6 +91,7 @@ function DealWithOneApp(url) {
         alert("Exception caught");
         DealNoId(domain);
     }
+
 
 
 }
@@ -116,59 +119,65 @@ function DealObjId(url) {
     else {
         var newURL = "https://" + domain + switcher;
 
-        chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
-            chrome.tabs.update(tab.id, { url: newURL });
+        chrome.tabs.update(tab_ref.id, { url: newURL });
+
+        classic_url = chrome.tabs.get(tab_ref.id, function (tab)
+        {
+            classic_url = tab.url;
         });
+        
+        chrome.webNavigation.onCompleted.addListener(function (){
+            if(!control){
+                control = true;
+                var aux = classic_url + '';
+                aux = aux.split("://")[1];
 
-        chrome.webNavigation.onCompleted.addListener(function (details) {
-            if (!control) {
-                chrome.tabs.query({ currentWindow: true, active: true }, function (tab_2) {
-                    control = true;
-                    var aux = tab_2[0].url + '';
-                    aux = aux.split("://")[1];
-
-                    lightning_url = "https://" + aux.split('/')[0] + '/' + obj_id;
-                    chrome.tabs.update(tab_2[0].id, { url: lightning_url });
-                });
+                lightning_url = "https://" + aux.split('/')[0] + '/' + obj_id;
+                chrome.tabs.update(tab_ref.id, { url: lightning_url });
             }
+            
         }, {
             url: [{
                 hostContains: '.salesforce.com'
             }],
         });
 
+
     }
+
+
 
 }
 
 function DealNoId(domain) {
     var newURL = "https://" + domain + switcher;
 
-    chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
-        chrome.tabs.update(tab.id, { url: newURL });
-    });
+    chrome.tabs.update(tab_ref.id, { url: newURL });
+    
 }
 
 function DealConfigMngmt(url) {
-    var domain, lightning_url = '', split_url = null, temp;
+    var domain, lightning_url = '', split_url = null;
     split_url = Parser(url);
     domain = split_url[0];
 
     var newURL = "https://" + domain + switcher;
 
-    chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
-        chrome.tabs.update(tab.id, { url: newURL });
+    chrome.tabs.update(tab_ref.id, { url: newURL });
+    
+    classic_url = chrome.tabs.get(tab_ref.id, function (tab)
+    {
+        classic_url = tab.url;
     });
 
-    chrome.webNavigation.onCompleted.addListener(function (details) {
+    chrome.webNavigation.onCompleted.addListener(function () {
         if (!control) {
-            chrome.tabs.query({ currentWindow: true, active: true }, function (tab_classic) {
                 control = true;
-                var temp = tab_classic[0].url + '';
+                var temp = classic_url + '';
                 temp = temp.split("://")[1];
                 lightning_url = "https://" + temp.split('/')[0] + "/apex/KimbleOne__ConfigurationDataManagement";
-                chrome.tabs.update(tab_classic[0].id, { url: lightning_url });
-            });
+                chrome.tabs.update(tab_ref.id, { url: lightning_url });
+            
         }
     }, {
         url: [{
@@ -188,19 +197,20 @@ function DealJobAdmin(url) {
 
     var newURL = "https://" + domain + switcher;
 
-    chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
-        chrome.tabs.update(tab.id, { url: newURL });
+    chrome.tabs.update(tab_ref.id, { url: newURL });
+    
+    classic_url = chrome.tabs.get(tab_ref.id, function (tab)
+    {
+        classic_url = tab.url;
     });
 
-    chrome.webNavigation.onCompleted.addListener(function (details) {
+    chrome.webNavigation.onCompleted.addListener(function (tab_ref) {
         if (!control) {
-            chrome.tabs.query({ currentWindow: true, active: true }, function (tab_classic) {
-                control = true;
-                var temp = tab_classic[0].url + '';
-                temp = temp.split("://")[1];
-                classic_url = "https://" + temp.split('/')[0] + "/apex/KimbleOne__jobadministration";
-                chrome.tabs.update(tab_classic[0].id, { url: classic_url });
-            });
+            var temp = classic_url + '';
+            control = true;
+            temp = temp.split("://")[1];
+            classic_url = "https://" + temp.split('/')[0] + "/apex/KimbleOne__jobadministration";
+            chrome.tabs.update(tab_ref.id, { url: classic_url });
         }
     }, {
         url: [{
@@ -219,19 +229,20 @@ function DealAgentDashboard() {
     domain = split_url[0];
 
     var newURL = "https://" + domain + switcher;
-    chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
-        chrome.tabs.update(tab.id, { url: newURL });
+    chrome.tabs.update(tab_ref.id, { url: newURL });
+    
+    classic_url = chrome.tabs.get(tab_ref.id, function (tab)
+    {
+        classic_url = tab.url;
     });
 
     chrome.webNavigation.onCompleted.addListener(function (details) {
         if (!control) {
-            chrome.tabs.query({ currentWindow: true, active: true }, function (tab_classic) {
-                control = true;
-                var temp = tab_classic[0].url + '';
-                temp = temp.split("://")[1];
-                classic_url = "https://" + prefix + temp.split('/')[0] + "/apex/KimbleOne__jobadministration";
-                chrome.tabs.update(tab_classic[0].id, { url: classic_url });
-            });
+            control = true;
+            var temp = classic_url + '';
+            temp = temp.split("://")[1];
+            classic_url = "https://" + prefix + temp.split('/')[0] + "/apex/KimbleOne__jobadministration";
+            chrome.tabs.update(tab_refid, { url: classic_url });
         }
     }, {
         url: [{
@@ -261,19 +272,22 @@ function DealJobPage(url) {
         DealObjId(url);
     }
     else {
-        chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
-            chrome.tabs.update(tab.id, { url: newURL });
+       
+        chrome.tabs.update(tab_ref.id, { url: newURL });
+        
+        classic_url = chrome.tabs.get(tab_ref.id, function (tab)
+        {
+            classic_url = tab.url;
         });
+
 
         chrome.webNavigation.onCompleted.addListener(function (details) {
             if (!control) {
-                chrome.tabs.query({ currentWindow: true, active: true }, function (tab_classic) {
                     control = true;
-                    var temp = tab_classic[0].url + '';
+                    var temp = classic_url + '';
                     temp = temp.split("://")[1];
                     classic_url = "https://" + temp.split('/')[0] + "/apex/KimbleOne__ObjectLinks?f=KimbleOne__Job__C";
-                    chrome.tabs.update(tab_classic[0].id, { url: classic_url });
-                });
+                    chrome.tabs.update(tab_ref.id, { url: classic_url });
             }
         }, {
             url: [{
