@@ -88,20 +88,15 @@ function DealWithOneApp(url) {
         DealNoId(domain);
     }
 
-
-
 }
-
 
 function DealObjId(url) {
 
     var domain, lightning_url = '', split_url = null, obj_id = "Never Populated";
     const regex = new RegExp("(?=.*)^[/(a-zA-Z)+(0-9)+]{16,19}$");
-    
     split_url = Parser(url);
     domain = split_url[0];
-
-
+    
     for (const str of split_url) {
         if (regex.test(str)) {
             obj_id = str;
@@ -121,7 +116,6 @@ function DealObjId(url) {
         {
             classic_url = tab.url;
         });
-        
         chrome.webNavigation.onCompleted.addListener(function (){
             if(!control){
                 control = true;
@@ -137,17 +131,7 @@ function DealObjId(url) {
                 hostContains: '.salesforce.com'
             }],
         });
-
-
     }
-
-}
-
-function DealNoId(domain) {
-    var newURL = "https://" + domain + switcher;
-
-    chrome.tabs.update(tab_ref.id, { url: newURL });
-    
 }
 
 function DealConfigMngmt(url) {
@@ -179,6 +163,12 @@ function DealConfigMngmt(url) {
         }],
     });
 
+}
+
+function DealNoId(domain) {
+    var newURL = "https://" + domain + switcher;
+
+    chrome.tabs.update(tab_ref.id, { url: newURL });
 }
 
 
