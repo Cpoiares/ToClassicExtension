@@ -167,7 +167,6 @@ function DealConfigMngmt(url) {
 
 function DealNoId(domain) {
     var newURL = "https://" + domain + switcher;
-
     chrome.tabs.update(tab_ref.id, { url: newURL });
 }
 
@@ -203,36 +202,6 @@ function DealJobAdmin(url) {
     });
 
 
-}
-
-
-function DealAgentDashboard() {
-    var domain, classic_url = '', split_url = null, temp, prefix = "kimbleagent.";
-
-    split_url = Parser(url);
-    domain = split_url[0];
-
-    var newURL = "https://" + domain + switcher;
-    chrome.tabs.update(tab_ref.id, { url: newURL });
-    
-    classic_url = chrome.tabs.get(tab_ref.id, function (tab)
-    {
-        classic_url = tab.url;
-    });
-
-    chrome.webNavigation.onCompleted.addListener(function (details) {
-        if (!control) {
-            control = true;
-            var temp = classic_url + '';
-            temp = temp.split("://")[1];
-            classic_url = "https://" + prefix + temp.split('/')[0] + "/apex/KimbleOne__jobadministration";
-            chrome.tabs.update(tab_refid, { url: classic_url });
-        }
-    }, {
-        url: [{
-            hostContains: '.salesforce.com'
-        }],
-    });
 }
 
 function DealJobPage(url) {
@@ -282,5 +251,36 @@ function DealJobPage(url) {
     }
 
 }
+
+function DealAgentDashboard() {
+    var domain, classic_url = '', split_url = null, temp, prefix = "kimbleagent.";
+
+    split_url = Parser(url);
+    domain = split_url[0];
+
+    var newURL = "https://" + domain + switcher;
+    chrome.tabs.update(tab_ref.id, { url: newURL });
+    
+    classic_url = chrome.tabs.get(tab_ref.id, function (tab)
+    {
+        classic_url = tab.url;
+    });
+
+    chrome.webNavigation.onCompleted.addListener(function (details) {
+        if (!control) {
+            control = true;
+            var temp = classic_url + '';
+            temp = temp.split("://")[1];
+            classic_url = "https://" + prefix + temp.split('/')[0] + "/apex/KimbleOne__jobadministration";
+            chrome.tabs.update(tab_refid, { url: classic_url });
+        }
+    }, {
+        url: [{
+            hostContains: '.salesforce.com'
+        }],
+    });
+}
+
+
 
 
