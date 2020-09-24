@@ -1,7 +1,3 @@
-/*
-    TODO: Context menu for right click call ID, Decode Parameter and Open Ids
-    TODO: Lock extension behavior to same tab - identify tab and call same id
-*/
 const switcher = '/ltng/switcher?destination=classic&referrer=%2Flightning%2Fpage%2Fhome';
 var control = false, debug = false, test = 'https://claremont.lightning.force.com/one/one.app?source=alohaHeader#eyJjb21wb25lbnREZWYiOiJvbmU6YWxvaGFQYWdlIiwiYXR0cmlidXRlcyI6eyJhZGRyZXNzIjoiaHR0cHM6Ly9jbGFyZW1vbnQubGlnaHRuaW5nLmZvcmNlLmNvbS9hcGV4L0tpbWJsZU9uZV9fQWN0aXZpdHlBc3NpZ25tZW50c0RlbGl2ZXJ5P2lkPWEwYzN6MDAwMDBabVdUdEFBTiJ9LCJzdGF0ZSI6e319';
 var tab_ref;
@@ -144,8 +140,6 @@ function DealObjId(url) {
 
 
     }
-
-
 
 }
 
