@@ -170,6 +170,12 @@ function DealNoId(domain) {
     chrome.tabs.update(tab_ref.id, { url: newURL });
 }
 
+function DealWithID(domain)
+{
+    var newURL = "https://" + domain + switcher;
+    return 'cenas';
+}
+
 
 function DealJobAdmin(url) {
 
